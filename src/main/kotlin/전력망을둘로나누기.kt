@@ -1,5 +1,3 @@
-import kotlin.math.abs
-
 fun main(args: Array<String>) {
     val edges = arrayOf(
         intArrayOf(1, 3),
@@ -25,48 +23,50 @@ class 전력망 {
     fun solution(n: Int, wires: Array<IntArray>): Int {
         var answer: Int = -1
 
-        val visited = BooleanArray(n)
-        val current = wires.first()
-        visited[current.first()] = true
 
-        dfs(wires, visited, current = current.first())
+        val current = wires.first()
+
+
+        val route = Array(n + 1) { ArrayList<Int>() }
+
+        for ((start, end) in wires) {
+            route[start].add(end)
+            route[end].add(start)
+        }
+
+
+        for ((first, second) in wires) {
+
+            route[first].remove(second)
+            route[second].remove(first)
+
+            val visited = BooleanArray(n + 1)
+
+            println("Root #1 ($first , $second)")
+
+            dfs(first, route, visited)
+
+            println("Root #2 ($first , $second)")
+
+            route[first].add(second)
+            route[second].add(first)
+        }
+
 
         return test
     }
 
-    /*
-    트리가 끊어진 경우는 주어지지 않음
-    하나씩 끊어보고 아니면 나아가는 방식을 해야할 것 같다
-    백트래킹을 해야할 것 같은데 dfs를 어떻게 구성해야할까
+    fun dfs(start: Int, route: Array<ArrayList<Int>>, visited: BooleanArray): Int {
 
+        println("dfs #1 start $start")
 
-    접근 방법이 조금 부실함
+        visited[start] = true
 
-    1. 현재 노드의 간선을 제거
-    2. dfs 순회 한번만 하면됨, 노드의 첫번째나 두번재나 아무거나 순회돌고
-    3. 훈회 돌아서 나온 경로들과 안나온 경로의 차를 구하고
-    4. min값 검사로 갱신
-    5. 1번에서 뺀 간선 연결
-    6. 다음 노드로 이동
+        println("Visited ${visited.contentToString()}")
 
+        var count = 0
 
-
-     */
-
-
-    fun dfs(wires: Array<IntArray>, visited: BooleanArray, current: Int) {
-
-        wires.filter { node -> current == node.first() && !visited[node[1]-1] }
-            .forEach {
-                visited[it[1]-1] = true
-                val route = visited.count { visitedNode -> visitedNode }
-                val notVisited = visited.count { visitedNode -> !visitedNode }
-                if (abs(route - notVisited) < test) {
-                    test = abs(route - notVisited)
-                }
-                dfs(wires, visited, it[1]-1)
-            }
-
+        return count
     }
 
 }
